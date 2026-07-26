@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h2>Class Advisor Dashboard</h2>
+    <p class="text-muted">Assigned Class: <strong>{{ current_user.subject or 'Not Assigned' }}</strong></p>
+
+    <!-- 1. Search Student -->
+    <div class="card full-width">
+        <h3>Select Student</h3>
+        <form method="POST" action="{{ url_for('class_advisor.dashboard') }}">
+            <div class="form-group" style="display:flex; gap:10px;">
+                <input list="students_list" name="student_id" placeholder="Search by Roll No or Name..." required
+                    style="flex-grow:1;">
+                <datalist id="students_list">
+                    {% for s in students %}
+                    <option value="{{ s.id }}">{{ s.username }} - {{ s.full_name }}</option>
+                    {% endfor %}
+                </datalist>
+                <button type="submit" class="btn">View Details</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 2. Student Details & Editor (Visible only if selected) -->
+    {% if selected_student and profile %}
+    <div class="dashboard-grid">
+
+        <!-- Profile Info (Read Only) -->
+        <div class="card">
+            <h3>Student Details</h3>
+            <p><strong>Name:</strong> {{ profile.full_name }}</p>
+            <p><strong>Roll No:</strong> {{ profile.roll_no }}</p>
+            <p><strong>Branch/Deg:</strong> {{ profile.degree }} - {{ profile.branch }}</p>
+            <p><strong>Email:</strong> {{ profile.email }}</p>
+            <p><strong>Contact:</strong> {{ profile.contact }}</p>
+        </div>
+
+        <!-- Academic Editor -->
+        <div class="card">
+            <h3>Update Metrics from Exam Cell</h3>
+            <form action="{{ url_for('class_advisor.update_metrics') }}" method="POST">
+                <input type="hidden" name="student_id" value="{{ selected_student.id }}">
+
+                <div class="form-group">
+                    <label>CGPA</label>
+                    <input type="number" step="0.01" name="cgpa" value="{{ profile.cgpa }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Current SGPA</label>
+                    <input type="number" step="0.01" name="sgpa" value="{{ profile.current_sgpa }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Grace Marks (Added to Total)</label>
+                    <input type="number" step="0.5" name="grace_marks" value="{{ profile.grace_marks }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Advisor Remarks</label>
+                    <textarea name="advisor_remarks"
+                        placeholder="Enter remarks...">{{ profile.advisor_remarks or '' }}</textarea>
+                </div>
+
+                <button type="submit" class="btn warning">Update Metrics</button>
+            </form>
+        </div>
+
+    </div>
+    {% elif request.method == 'POST' %}
+    <div class="card error">
+        <p>Student profile not found or not initialized.</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

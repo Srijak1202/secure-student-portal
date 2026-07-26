@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Student Registration</h2>
+    <p class="note">Faculty members must be registered by the Administrator.</p>
+    <form method="POST">
+        <div class="form-group">
+            <label for="full_name">Full Name</label>
+            <input type="text" id="full_name" name="full_name" required>
+        </div>
+        <div class="form-group">
+            <label for="username">Roll No (Username)</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <div style="display:flex; gap:10px;">
+                <input type="text" name="degree" placeholder="Degree (e.g. B.Tech)" required style="width:50%">
+                <input type="text" name="branch" placeholder="Branch (e.g. CSE)" required style="width:50%">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="date" name="dob" required>
+        </div>
+        <div class="form-group">
+            <div style="display:flex; gap:10px;">
+                <input type="text" name="contact" placeholder="Contact No" required style="width:50%">
+                <input type="text" name="blood_group" placeholder="Blood Grp" required style="width:50%">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" required>
+        </div>
+        <!-- Role is hidden/defaulted to Student -->
+        <button type="submit" class="btn">Register as Student</button>
+    </form>
+    <p class="note">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>.</p>
+</div>
+{% endblock %}

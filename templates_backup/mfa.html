@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Multi-Factor Authentication</h2>
+    <p>Please enter the OTP sent to your registered channel (or console for demo).</p>
+    <form method="POST">
+        <div class="form-group">
+            <label for="otp">One-Time Password (OTP)</label>
+            <input type="text" id="otp" name="otp" maxlength="6" required>
+        </div>
+        <button type="submit" class="btn">Verify</button>
+    </form>
+    <p class="note">Security: Valid for 5 minutes. Session-based Auth.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container fade-in">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <i class="fa-solid fa-user-shield" style="font-size: 3rem; color: var(--primary);"></i>
+    </div>
+    <h2>Login Portal</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="username"><i class="fa-solid fa-id-card"></i> Username / Roll No</label>
+            <input type="text" id="username" name="username" placeholder="Enter your ID" required>
+        </div>
+        <div class="form-group">
+            <label for="email"><i class="fa-solid fa-envelope"></i> Registered Email</label>
+            <input type="email" id="email" name="email" placeholder="Verify your Email" required>
+        </div>
+        <div class="form-group">
+            <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+            <input type="password" id="password" name="password" placeholder="••••••••" required>
+        </div>
+
+
+
+        <button type="submit" class="btn btn-primary full-width">
+            <i class="fa-solid fa-right-to-bracket"></i> Login
+        </button>
+    </form>
+    <div class="note">
+        <p>New Student? <a href="{{ url_for('auth.register') }}">Register Account</a></p>
+
+    </div>
+
+    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--gray-light);">
+        <a href="{{ url_for('auth.access_control') }}" class="btn btn-sm full-width"
+            style="background: rgba(99, 102, 241, 0.1); color: var(--primary); justify-content: center;">
+            <i class="fa-solid fa-table-list"></i> Access Matrix
+        </a>
+    </div>
+</div>
+{% endblock %}

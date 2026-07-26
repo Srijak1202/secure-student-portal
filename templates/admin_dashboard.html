@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="card full-width" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h2 style="margin-bottom:0;"><i class="fa-solid fa-user-tie"></i> Admin Dashboard</h2>
+            <p class="text-muted" style="margin-top:5px;">System Overview & User Management</p>
+        </div>
+
+    </div>
+
+    <!-- Stats -->
+    <div class="card" style="background: linear-gradient(135deg, white, #f0fdf4);">
+        <h3><i class="fa-solid fa-heart-pulse" style="color:var(--success);"></i> System Health</h3>
+        <div style="font-size: 1.2rem; margin-bottom: 10px;">
+            <p>Total Users: <strong>{{ users|length }}</strong></p>
+            <p>Risk Detection: <strong style="color:var(--danger)"><i class="fa-solid fa-triangle-exclamation"></i>
+                    Active</strong></p>
+        </div>
+        <a href="{{ url_for('admin.export_risk_report') }}" class="btn btn-sm full-width"
+            style="background:var(--success); color:white; justify-content:center;">
+            <i class="fa-solid fa-file-csv"></i> Download Risk Report
+        </a>
+    </div>
+
+    <!-- Faculty Registration -->
+    <div class="card">
+        <h3><i class="fa-solid fa-chalkboard-user" style="color:var(--primary);"></i> Onboard Faculty</h3>
+        <form action="{{ url_for('admin.add_user') }}" method="POST">
+            <input type="hidden" name="role" value="faculty">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Faculty Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" placeholder="Faculty Email" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="subject" placeholder="Expertise (e.g. Cyber Security)" required>
+            </div>
+            <button type="submit" class="btn btn-primary full-width">Create Faculty</button>
+        </form>
+    </div>
+
+    <!-- Class Advisor Registration -->
+    <div class="card">
+        <h3><i class="fa-solid fa-user-gear" style="color:var(--secondary);"></i> Onboard Advisor</h3>
+        <form action="{{ url_for('admin.add_user') }}" method="POST">
+            <input type="hidden" name="role" value="class_advisor">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Advisor Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" placeholder="Advisor Email" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="subject" placeholder="Class (e.g. S6-CSE-B)" required>
+            </div>
+            <button type="submit" class="btn full-width" style="background:var(--secondary); color:white;">Create
+                Advisor</button>
+        </form>
+    </div>
+
+    <!-- User Management List -->
+    <div class="card full-width">
+        <h3><i class="fa-solid fa-users-gear"></i> User Management</h3>
+        <div style="overflow-x:auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Assigned Scope</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td style="font-weight:600;">{{ user.username }}</td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                            <span class="badge danger">Admin</span>
+                            {% elif user.role == 'faculty' %}
+                            <span class="badge warning">Faculty</span>
+                            {% elif user.role == 'student' %}
+                            <span class="badge success">Student</span>
+                            {% elif user.role == 'class_advisor' %}
+                            <span class="badge purple">Class Advisor</span>
+                            {% else %}
+                            <span class="badge info">{{ user.role|capitalize }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.subject or '-' }}</td>
+                        <td><span style="color:var(--success);"><i class="fa-solid fa-circle-check"></i> Active</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

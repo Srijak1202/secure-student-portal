@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="access-matrix-container fade-in" style="max-width: 900px;">
+    <div class="matrix-header">
+        <i class="fa-solid fa-file-code" style="font-size: 3rem; color: var(--secondary); margin-bottom: 15px;"></i>
+        <h2>Encoding Techniques Theory</h2>
+        <p>Implementation, security analysis, and possible attacks related to encoding in AcadPortal.</p>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 5a: Encoding & Decoding Implementation (1m) -->
+    <!-- ============================================ -->
+    <div class="card full-width" style="margin-bottom: 25px; text-align: left;">
+        <h3 style="border-bottom: 2px solid var(--gray-light); padding-bottom: 10px; margin-bottom: 15px;">
+            <i class="fa-solid fa-code" style="color: var(--primary);"></i> Encoding & Decoding Implementation
+        </h3>
+
+        <p>This project uses <strong>Base64 encoding</strong> (RFC 4648) — a technique that converts binary or text data
+            into
+            a set of 64 printable ASCII characters (A-Z, a-z, 0-9, +, /).</p>
+
+        <h4 style="margin-top: 15px;"><i class="fa-solid fa-gear"></i> Where Base64 is Used</h4>
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Encoding Process</th>
+                        <th>Decoding Process</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Export Encoded Profile</strong></td>
+                        <td>Student profile JSON → <code>base64.b64encode()</code> → downloadable <code>.txt</code> file
+                        </td>
+                        <td>Base64 string → <code>base64.b64decode()</code> → original JSON data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PEM Key Files</strong></td>
+                        <td>Binary encryption/signing keys → Base64-encoded body → wrapped with
+                            <code>-----BEGIN/END-----</code> headers</td>
+                        <td>PEM file → strip headers → <code>base64.b64decode()</code> → raw binary key</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4 style="margin-top: 20px;"><i class="fa-solid fa-arrows-rotate"></i> Encoding / Decoding Example</h4>
+        <div
+            style="background: #f1f5f9; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 0.85rem;">
+            <strong>Encoding:</strong><br>
+            Input: <code>{"full_name": "John Doe", "cgpa": 7.2}</code><br>
+            → UTF-8 bytes → <code>base64.b64encode()</code><br>
+            Output: <code>eyJmdWxsX25hbWUiOiAiSm9obiBEb2UiLCAiY2dwYSI6IDcuMn0=</code><br><br>
+            <strong>Decoding:</strong><br>
+            Input: <code>eyJmdWxsX25hbWUiOi...</code><br>
+            → <code>base64.b64decode()</code> → UTF-8 decode<br>
+            Output: <code>{"full_name": "John Doe", "cgpa": 7.2}</code>
+        </div>
+
+        <p style="margin-top: 15px;"><strong>Implementation files:</strong>
+            <code>utils/crypto.py</code> → <code>encode_base64()</code> and <code>decode_base64()</code> functions;
+            <code>_read_pem()</code> and <code>_write_pem()</code> for PEM key handling.
+        </p>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 5b: Security Levels & Risks (Theory) (1m) -->
+    <!-- ============================================ -->
+    <div class="card full-width" style="margin-bottom: 25px; text-align: left;">
+        <h3 style="border-bottom: 2px solid var(--gray-light); padding-bottom: 10px; margin-bottom: 15px;">
+            <i class="fa-solid fa-shield-halved" style="color: var(--warning);"></i> Security Levels & Risks (Theory)
+        </h3>
+
+        <div
+            style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffeeba;">
+            <strong><i class="fa-solid fa-triangle-exclamation"></i> CRITICAL:</strong> Encoding is <strong>NOT</strong>
+            Encryption.
+            Anyone can decode Base64 without any key — it provides <strong>zero confidentiality</strong>.
+        </div>
+
+        <h4><i class="fa-solid fa-layer-group"></i> Security Level Assessment</h4>
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>CIA Property</th>
+                        <th>Level</th>
+                        <th>Explanation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Confidentiality</strong></td>
+                        <td><span class="badge error">None</span></td>
+                        <td>Base64 is a public algorithm. Any encoded string can be decoded instantly using tools like
+                            <code>atob()</code>, online decoders, or command-line utilities. No secret key is needed.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Integrity</strong></td>
+                        <td><span class="badge error">None</span></td>
+                        <td>Encoding does not include checksums, MACs, or any mechanism to detect if data has been
+                            modified in transit.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Availability / Compatibility</strong></td>
+                        <td><span class="badge success">High</span></td>
+                        <td>Base64 ensures binary data can safely travel through text-only protocols (HTTP headers,
+                            SMTP, URLs, JSON) without corruption.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h4 style="margin-top: 20px;"><i class="fa-solid fa-bug"></i> Associated Risks</h4>
+        <ol>
+            <li style="margin-bottom: 10px;">
+                <strong>False Sense of Security:</strong> Developers may mistake encoded data (e.g.,
+                <code>dXNlcjpwYXNz</code>) for encrypted data because it "looks random." This leads to exposing
+                passwords, PII, or API keys that are merely encoded, not protected.
+            </li>
+            <li style="margin-bottom: 10px;">
+                <strong>Data Bloat:</strong> Base64 increases data size by approximately <strong>33%</strong> (every 3
+                bytes becomes 4 characters). This impacts bandwidth, storage, and performance when applied to large
+                files or frequent API calls.
+            </li>
+            <li style="margin-bottom: 10px;">
+                <strong>Obfuscation Abuse:</strong> Attackers use encoding to bypass Web Application Firewalls (WAFs)
+                and input validation filters that only scan for known plaintext attack patterns like
+                <code>&lt;script&gt;</code> or <code>DROP TABLE</code>.
+            </li>
+        </ol>
+
+        <h4 style="margin-top: 20px;"><i class="fa-solid fa-check-circle" style="color: var(--success);"></i> Mitigation
+            in This Project</h4>
+        <ul>
+            <li>Sensitive data (marks, risk scores) is protected by <strong>AES encryption</strong>, not encoding</li>
+            <li>Passwords are stored as <strong>PBKDF2-SHA256 salted hashes</strong>, never encoded</li>
+            <li>Base64 is used <strong>only</strong> for data formatting (profile export, PEM key files) — never as a
+                security control</li>
+        </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- 5c: Possible Attacks (Theory) (1m) -->
+    <!-- ============================================ -->
+    <div class="card full-width" style="margin-bottom: 25px; text-align: left;">
+        <h3 style="border-bottom: 2px solid var(--gray-light); padding-bottom: 10px; margin-bottom: 15px;">
+            <i class="fa-solid fa-user-ninja" style="color: var(--danger);"></i> Possible Attacks (Theory)
+        </h3>
+
+        <div class="attack-item"
+            style="margin-bottom: 20px; padding: 15px; background: #fef2f2; border-radius: 8px; border-left: 4px solid var(--danger);">
+            <h5 style="color: var(--danger); font-weight: 600; margin-bottom: 8px;">1. Decoding Sensitive Information
+            </h5>
+            <p><strong>Scenario:</strong> An attacker intercepts network traffic or inspects browser local storage and
+                finds a "secure token": <code>dXNlcm5hbWU6cGFzc3dvcmQ=</code></p>
+            <p><strong>Attack:</strong> The attacker recognizes the Base64 pattern (alphanumeric + <code>=</code>
+                padding) and decodes it instantly</p>
+            <p><strong>Result:</strong> <code>username:password</code> is revealed — complete credential compromise</p>
+            <p><strong>Countermeasure:</strong> Never use encoding for credentials. Use encrypted tokens (JWT with
+                signing) or session-based auth (as implemented in this project).</p>
+        </div>
+
+        <div class="attack-item"
+            style="margin-bottom: 20px; padding: 15px; background: #fef2f2; border-radius: 8px; border-left: 4px solid var(--danger);">
+            <h5 style="color: var(--danger); font-weight: 600; margin-bottom: 8px;">2. WAF/Filter Evasion via Encoding
+                (XSS)</h5>
+            <p><strong>Scenario:</strong> A web application blocks <code>&lt;script&gt;</code> tags in user input to
+                prevent XSS attacks</p>
+            <p><strong>Attack:</strong> The attacker submits a Base64-encoded payload instead:</p>
+            <div
+                style="background: #1e293b; color: #e2e8f0; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0;">
+                eval(atob('YWxlcnQoJ1hTUycp'))
+            </div>
+            <p><strong>Result:</strong> The browser executes <code>alert('XSS')</code> — the filter was bypassed because
+                it only checked for plain <code>&lt;script&gt;</code></p>
+            <p><strong>Countermeasure:</strong> Validate and sanitize decoded input, not just raw input. Use output
+                encoding (Jinja2 auto-escapes by default in this project).</p>
+        </div>
+
+        <div class="attack-item"
+            style="padding: 15px; background: #fef2f2; border-radius: 8px; border-left: 4px solid var(--danger);">
+            <h5 style="color: var(--danger); font-weight: 600; margin-bottom: 8px;">3. Forced Browsing / IDOR with
+                Encoded IDs</h5>
+            <p><strong>Scenario:</strong> A web application uses Base64-encoded user IDs in URLs:
+                <code>/profile/MQ==</code></p>
+            <p><strong>Attack:</strong> Attacker decodes <code>MQ==</code> → <code>1</code>, then encodes <code>2</code>
+                → <code>Mg==</code>, and accesses <code>/profile/Mg==</code></p>
+            <p><strong>Result:</strong> Unauthorized access to another user's profile — trivial enumeration because
+                encoding is reversible without a key</p>
+            <p><strong>Countermeasure:</strong> Use server-side session checks (this project uses
+                <code>current_user.id</code> from Flask-Login, not URL parameters).</p>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+            <i class="fa-solid fa-arrow-left"></i> Back to Login
+        </a>
+    </div>
+</div>
+{% endblock %}

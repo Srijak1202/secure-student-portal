@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <!-- 1. Profile Card (Detailed) -->
+    <div class="card profile-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <h3>Student Profile</h3>
+            <a href="{{ url_for('student.edit_profile') }}" class="btn" style="font-size:0.8rem; padding:5px 10px;">Edit
+                Profile</a>
+        </div>
+
+        <div style="display:flex; gap:15px; margin-top:10px;">
+            <!-- Avatar Placeholder -->
+            <div
+                style="width:80px; height:80px; background:#ddd; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; color:#666;">
+                👤
+            </div>
+            <div>
+                <p><strong>{{ profile.full_name }}</strong></p>
+                <p class="text-muted">{{ profile.roll_no }} | {{ profile.course }}</p>
+                <p>DOB: {{ profile.dob }} | Blood: {{ profile.blood_group }}</p>
+                <p>Email: {{ profile.email }} | Ph: {{ profile.contact }}</p>
+            </div>
+        </div>
+
+        <div class="cgpa-box">
+            <div style="border-bottom:1px solid #ddd; padding-bottom:5px; margin-bottom:5px;">
+                <span>CGPA: <strong>{{ profile.cgpa }}</strong></span>
+            </div>
+            <div>
+                <span>SGPA: <strong>{{ profile.current_sgpa }}</strong></span>
+            </div>
+            {% if profile.grace_marks > 0 %}
+            <div style="margin-top:5px; color:green;">
+                <span>Grace Added: <strong>+{{ profile.grace_marks }}</strong></span>
+            </div>
+            {% endif %}
+            {% if profile.advisor_remarks %}
+            <div
+                style="margin-top:10px; font-size:0.85rem; background:#f9f9f9; padding:5px; border-left:3px solid #007bff;">
+                <strong>Advisor Note:</strong> {{ profile.advisor_remarks }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 2. Risk Analysis (Split) -->
+    <div class="card">
+        <h3>Risk Analysis</h3>
+
+        <!-- Attendance Risk -->
+        <div style="margin-bottom:15px;">
+            <small><strong>Attendance Risk</strong></small>
+            <div class="risk-gauge">
+                <div class="risk-needle {{ risk_att|lower }}"></div>
+                <span class="risk-label" style="font-size:1rem; margin-top:20px;">{{ risk_att }}</span>
+            </div>
+        </div>
+
+        <!-- Internal Marks Risk -->
+        <div>
+            <small><strong>Internal Marks Risk</strong></small>
+            <div class="risk-gauge">
+                <div class="risk-needle {{ risk_marks|lower }}"></div>
+                <span class="risk-label" style="font-size:1rem; margin-top:20px;">{{ risk_marks }}</span>
+            </div>
+        </div>
+
+        <ul style="margin-top:15px; font-size:0.9rem;">
+            {% for factor in factors %}
+            <li>⚠️ {{ factor }}</li>
+            {% else %}
+            <li>✅ No Risk Factors detected.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- 3. Attendance -->
+    <div class="card full-width">
+        <h3>Attendance Tracker</h3>
+        <p class="text-muted" style="margin-bottom:15px;">📊 Attendance data is securely fetched and decrypted before
+            display.</p>
+        <div class="attendance-bars">
+            {% for subject in attendance %}
+            <div class="att-item">
+                <span class="label">{{ subject.subject }}</span>
+                <div class="progress-bg">
+                    <div class="progress-fill {% if subject.percentage < 75 %}danger{% endif %}"
+                        style="width: {{ subject.percentage }}%;"></div>
+                </div>
+                <span class="val">{{ subject.percentage }}%</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 4. Academic Records (Extended) -->
+    <div class="card full-width">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Academic Records (Secure View)</h3>
+            <span class="badge success" style="font-weight:normal; font-size:0.85rem;">Last Integrity Check: 25 Jan 2026
+                ✔</span>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Assignments</th>
+                    <th>Evaluations</th>
+                    <th>Marks</th>
+                    <th>Remarks</th>
+                    <th>Integrity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.subject }}</td>
+                    <td>{{ record.assignments }}</td>
+                    <td>{{ record.evaluations }}</td>
+                    <td>{{ record.marks }}</td>
+                    <td>{{ record.remarks }}</td>
+                    <td>
+                        {% if record.is_valid %}
+                        <span class="badge success">Verified</span>
+                        {% else %}
+                        <span class="badge error">TAMPERED</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

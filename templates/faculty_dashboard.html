@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="card full-width"
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 25px;">
+        <div>
+            <h2 style="margin-bottom:0;"><i class="fa-solid fa-chalkboard-user"></i> Faculty Dashboard</h2>
+            <p class="text-muted" style="margin-top:5px;">
+                <i class="fa-solid fa-book-bookmark"></i> Assigned Subject: <strong>{{ current_user.subject or 'Not
+                    Assigned' }}</strong>
+            </p>
+        </div>
+        <div>
+            <span class="badge info"><i class="fa-solid fa-user-check"></i> Faculty Access</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <!-- 1. Assignment Upload -->
+        <div class="card">
+            <h3><i class="fa-solid fa-file-pen" style="color:var(--primary);"></i> Upload Assignment</h3>
+            {% if not current_user.subject %}
+            <div class="badge error"><i class="fa-solid fa-triangle-exclamation"></i> No Subject Assigned</div>
+            {% else %}
+            <form action="{{ url_for('faculty.add_assignment') }}" method="POST">
+                <div class="form-group">
+                    <label>Select Student</label>
+                    <input list="students_list" name="student_id" placeholder="Start typing name..." required>
+                    <datalist id="students_list">
+                        {% for s in students %}
+                        <option value="{{ s.id }}">{{ s.username }} - {{ s.full_name }}</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+
+                <div class="form-group">
+                    <label>Assignment No.</label>
+                    <input type="number" name="assign_no" placeholder="e.g. 1" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Marks Distribution</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="number" name="obt" placeholder="Obt" required style="width:33%">
+                        <input type="number" name="tot" placeholder="Tot" required style="width:33%">
+                        <input type="number" name="convert_to" placeholder="Conv (Opt)" style="width:33%">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Remarks</label>
+                    <input type="text" name="remarks" placeholder="Optional comments...">
+                </div>
+
+                <button type="submit" class="btn btn-primary full-width">Upload Marks</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- 2. Evaluation Upload -->
+        <div class="card">
+            <h3><i class="fa-solid fa-flask" style="color:var(--secondary);"></i> Upload Evaluation</h3>
+            {% if not current_user.subject %}
+            <div class="badge error">No Subject Assigned</div>
+            {% else %}
+            <form action="{{ url_for('faculty.add_evaluation') }}" method="POST">
+                <div class="form-group">
+                    <label>Select Student</label>
+                    <input list="students_list" name="student_id" placeholder="Start typing name..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Evaluation Type</label>
+                    <input type="text" name="eval_type" placeholder="e.g. Lab Eval, Midterm" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Marks Distribution</label>
+                    <div style="display:flex; gap:10px;">
+                        <input type="number" name="obt" placeholder="Obt" required style="width:33%">
+                        <input type="number" name="tot" placeholder="Tot" required style="width:33%">
+                        <input type="number" name="convert_to" placeholder="Conv (Opt)" style="width:33%">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Remarks</label>
+                    <input type="text" name="remarks" placeholder="Optional comments...">
+                </div>
+
+                <button type="submit" class="btn full-width" style="background:var(--secondary); color:white;">Upload
+                    Evaluation</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- 3. Attendance Tracker (Enhanced) -->
+        <div class="card">
+            <h3><i class="fa-solid fa-user-clock" style="color:var(--warning);"></i> Mark Attendance</h3>
+            {% if not current_user.subject %}
+            <p class="text-muted">No Subject Assigned</p>
+            {% else %}
+            <form action="{{ url_for('faculty.update_attendance') }}" method="POST">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" name="att_date" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Duration (Hours)</label>
+                    <input type="number" name="slots" value="1" min="1" max="5" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Student</label>
+                    <input list="students_list" name="student_id" placeholder="Start typing name..." required>
+                </div>
+
+                <div class="form-group" style="text-align: center;">
+                    <label>Status</label>
+                    <div style="display:flex; justify-content:center; gap:15px; margin-top:10px;">
+                        <label style="cursor:pointer; display:flex; align-items:center; gap:5px;">
+                            <input type="radio" name="status" value="Present" checked>
+                            <span class="badge success">Present</span>
+                        </label>
+                        <label style="cursor:pointer; display:flex; align-items:center; gap:5px;">
+                            <input type="radio" name="status" value="Absent">
+                            <span class="badge error">Absent</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn full-width" style="background:var(--warning); color:white;">Mark
+                    Attendance</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <!-- 4. Risk Overview (Split) -->
+        <div class="card full-width">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3><i class="fa-solid fa-magnifying-glass-chart"></i> Student Overview & Risk Status</h3>
+                <a href="{{ url_for('faculty.export_subject_report') }}" class="btn btn-sm"
+                    style="background:var(--primary); color:white;">
+                    <i class="fa-solid fa-file-csv"></i> Download Risk Report
+                </a>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>CGPA</th>
+                            <th>SGPA</th>
+                            <th>Att. Risk</th>
+                            <th>Marks Risk</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td>{{ s.id }}</td>
+                            <td style="font-weight:600;">{{ s.username }}</td>
+                            <td>{{ s.cgpa }}</td>
+                            <td>{{ s.sgpa }}</td>
+                            <td>
+                                <span
+                                    class="badge {% if s.risk_att == 'High' %}error{% elif s.risk_att == 'Medium' %}warning{% else %}success{% endif %}">
+                                    {{ s.risk_att }}
+                                </span>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge {% if s.risk_marks == 'High' %}error{% elif s.risk_marks == 'Medium' %}warning{% else %}success{% endif %}">
+                                    {{ s.risk_marks }}
+                                </span>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 5. Manage Published Marks -->
+        <div class="card full-width">
+            <h3><i class="fa-solid fa-list-check"></i> Manage Published Marks</h3>
+            <p class="text-muted">Select a student to view and edit marks uploaded by you.</p>
+
+            <!-- Selection Form -->
+            <form action="{{ url_for('faculty.manage_marks') }}" method="POST" style="margin-bottom: 20px;">
+                <div class="form-group" style="display:flex; gap:10px;">
+                    <input list="students_list" name="student_id" placeholder="Search Student..." required
+                        style="flex-grow:1;">
+                    <button type="submit" class="btn icon-btn"><i class="fa-solid fa-search"></i> Fetch Records</button>
+                </div>
+            </form>
+
+            <!-- Records Table -->
+            {% if edit_records %}
+            <h4 style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:5px;">Records for: <strong>{{
+                    selected_student_name }}</strong></h4>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Context</th>
+                            <th>Current Entry</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rec in edit_records %}
+                        <tr>
+                            <td>
+                                <i class="fa-solid {% if rec.assignments %}fa-file-signature{% else %}fa-flask{% endif %}"
+                                    style="color:var(--gray);"></i>
+                                {% if rec.assignments %} Assignment {% else %} Evaluation {% endif %}
+                            </td>
+                            <td>{{ rec.assignments or rec.evaluations }}</td>
+                            <td>
+                                <form action="{{ url_for('faculty.edit_record_marks') }}" method="POST"
+                                    style="display:flex; gap:5px; align-items:center;">
+                                    <input type="hidden" name="record_id" value="{{ rec.id }}">
+                                    <input type="number" name="obt" placeholder="Obt" step="0.5" required
+                                        style="width:60px; padding:5px;">
+                                    <input type="number" name="tot" placeholder="Tot" step="0.5" required
+                                        style="width:60px; padding:5px;">
+                                    <input type="number" name="convert_to" placeholder="Conv" step="0.5"
+                                        style="width:60px; padding:5px;">
+                                    <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% elif selected_student_id %}
+            <p class="text-muted"><i class="fa-solid fa-circle-info"></i> No records found for this student in your
+                subject.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="access-matrix-container fade-in">
+    <div class="matrix-header">
+        <i class="fa-solid fa-shield-virus" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px;"></i>
+        <h2>Access Control Matrix</h2>
+        <p>Comprehensive overview of role-based permissions and security levels.</p>
+    </div>
+
+    <div class="matrix-wrapper">
+        <table class="access-matrix">
+            <thead>
+                <tr>
+                    <th class="feature-col">Feature / Resource</th>
+                    <th class="role-col"><i class="fa-solid fa-user-graduate"></i> Student</th>
+                    <th class="role-col"><i class="fa-solid fa-chalkboard-user"></i> Faculty</th>
+                    <th class="role-col"><i class="fa-solid fa-user-tie"></i> Advisor</th>
+                    <th class="role-col"><i class="fa-solid fa-user-gear"></i> Admin</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Core Access -->
+                <tr class="section-header">
+                    <td colspan="5"><i class="fa-solid fa-key"></i> Core Access</td>
+                </tr>
+                <tr>
+                    <td>Login & Authentication</td>
+                    <td class="yes">✔</td>
+                    <td class="yes">✔</td>
+                    <td class="yes">✔</td>
+                    <td class="yes">✔</td>
+                </tr>
+                <tr>
+                    <td>Multi-Factor Authentication (MFA)</td>
+                    <td class="yes">✔</td>
+                    <td class="yes">✔</td>
+                    <td class="yes">✔</td>
+                    <td class="yes">✔</td>
+                </tr>
+                <tr>
+                    <td>View Dashboard</td>
+                    <td class="yes">Personal</td>
+                    <td class="yes">Faculty View</td>
+                    <td class="yes">Advisor View</td>
+                    <td class="yes">Global View</td>
+                </tr>
+
+                <!-- Academic Data -->
+                <tr class="section-header">
+                    <td colspan="5"><i class="fa-solid fa-graduation-cap"></i> Academic Data</td>
+                </tr>
+                <tr>
+                    <td>View Marks / Grades</td>
+                    <td class="yes">Own Only</td>
+                    <td class="yes">Assigned Classes</td>
+                    <td class="yes">Advisees</td>
+                    <td class="yes">All</td>
+                </tr>
+                <tr>
+                    <td>Upload/Edit Marks</td>
+                    <td class="no">✘</td>
+                    <td class="yes">Assigned Subjects</td>
+                    <td class="no">View Only</td>
+                    <td class="yes">Full Access</td>
+                </tr>
+                <tr>
+                    <td>View Attendance</td>
+                    <td class="yes">Own Only</td>
+                    <td class="yes">Assigned Classes</td>
+                    <td class="yes">Advisees</td>
+                    <td class="yes">All</td>
+                </tr>
+
+                <!-- Profile Management -->
+                <tr class="section-header">
+                    <td colspan="5"><i class="fa-solid fa-id-card-clip"></i> Profile Management</td>
+                </tr>
+                <tr>
+                    <td>Edit Personal Profile</td>
+                    <td class="yes">Limited</td>
+                    <td class="yes">Limited</td>
+                    <td class="yes">Limited</td>
+                    <td class="yes">Full Access</td>
+                </tr>
+                <tr>
+                    <td>Create New Users</td>
+                    <td class="no">✘</td>
+                    <td class="no">✘</td>
+                    <td class="no">✘</td>
+                    <td class="yes">✔</td>
+                </tr>
+
+                <!-- Risk Management -->
+                <tr class="section-header">
+                    <td colspan="5"><i class="fa-solid fa-chart-line"></i> Risk Management</td>
+                </tr>
+                <tr>
+                    <td>View Risk Scores</td>
+                    <td class="yes">Own Only</td>
+                    <td class="yes">Assigned Students</td>
+                    <td class="yes">Advisees</td>
+                    <td class="yes">All</td>
+                </tr>
+                <tr>
+                    <td>Export Risk Reports</td>
+                    <td class="no">✘</td>
+                    <td class="no">✘</td>
+                    <td class="yes">✔</td>
+                    <td class="yes">✔</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="matrix-legend">
+        <span class="legend-item"><span class="icon yes">✔</span> Allowed</span>
+        <span class="legend-item"><span class="icon no">✘</span> Denied</span>
+        <span class="legend-item"><span class="icon partial">⚠</span> Limited/Specific Scope</span>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+            <i class="fa-solid fa-arrow-left"></i> Back to Login
+        </a>
+    </div>
+</div>
+{% endblock %}

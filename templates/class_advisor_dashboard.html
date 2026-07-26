@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="card full-width"
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 25px;">
+        <div>
+            <h2 style="margin-bottom:0;"><i class="fa-solid fa-user-gear"></i> Class Advisor Dashboard</h2>
+            <p class="text-muted" style="margin-top:5px;">
+                <i class="fa-solid fa-users-rectangle"></i> Assigned Class: <strong>{{ current_user.subject or 'Not
+                    Assigned' }}</strong>
+            </p>
+        </div>
+        <div>
+            <a href="{{ url_for('class_advisor.export_class_report') }}" class="btn btn-sm"
+                style="background:var(--dark); color:white; margin-right:10px;">
+                <i class="fa-solid fa-file-export"></i> Download Class Report
+            </a>
+            <span class="badge info"><i class="fa-solid fa-id-badge"></i> Advisor Access</span>
+        </div>
+    </div>
+
+    <!-- 1. Search Student -->
+    <div class="card full-width">
+        <h3><i class="fa-solid fa-magnifying-glass"></i> Select Student</h3>
+        <form method="POST" action="{{ url_for('class_advisor.dashboard') }}">
+            <div class="form-group" style="display:flex; gap:10px;">
+                <input list="students_list" name="student_id" placeholder="Search by Roll No or Name..." required
+                    style="flex-grow:1;">
+                <datalist id="students_list">
+                    {% for s in students %}
+                    <option value="{{ s.id }}">{{ s.username }} - {{ s.full_name }}</option>
+                    {% endfor %}
+                </datalist>
+                <button type="submit" class="btn btn-primary">View Details</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 2. Student Details & Editor (Visible only if selected) -->
+    {% if selected_student and profile %}
+    <div class="dashboard-grid">
+
+        <!-- Profile Info (Read Only) -->
+        <div class="card">
+            <h3><i class="fa-solid fa-address-card" style="color:var(--primary);"></i> Student Details</h3>
+            <div style="font-size:0.95rem;">
+                <p><strong>Name:</strong> {{ profile.full_name }}</p>
+                <p><strong>Roll No:</strong> {{ profile.roll_no }}</p>
+                <p><strong>Branch/Deg:</strong> {{ profile.degree }} - {{ profile.branch }}</p>
+                <p><strong>Email:</strong> {{ profile.email }}</p>
+                <p><strong>Contact:</strong> {{ profile.contact }}</p>
+            </div>
+        </div>
+
+        <!-- Academic Editor -->
+        <div class="card">
+            <h3><i class="fa-solid fa-pen-to-square" style="color:var(--warning);"></i> Update Metrics</h3>
+            <p class="text-muted" style="font-size:0.85rem; margin-bottom:15px;">Update CGPA/SGPA from Exam Cell
+                records.</p>
+            <form action="{{ url_for('class_advisor.update_metrics') }}" method="POST">
+                <input type="hidden" name="student_id" value="{{ selected_student.id }}">
+
+                <div class="form-group">
+                    <label>Cumulative GPA (CGPA)</label>
+                    <input type="number" step="0.01" name="cgpa" value="{{ profile.cgpa }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Current Semester SGPA</label>
+                    <select name="sgpa"
+                        style="width:100%; padding:10px; border:2px solid var(--gray-light); border-radius:8px;">
+                        <option value="Nil" {{ 'selected' if profile.current_sgpa is none or
+                            profile.current_sgpa|string=='None' }}>Nil</option>
+                        {% for i in range(0, 101) %}
+                        <option value="{{ '%.1f'|format(i / 10.0) }}" {{ 'selected' if profile.current_sgpa is not none
+                            and profile.current_sgpa|string !='None' and (profile.current_sgpa|float * 10)|round|int==i
+                            }}>{{ '%.1f'|format(i / 10.0) }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Grace Marks (Added to Total)</label>
+                    <input type="number" step="0.5" name="grace_marks" value="{{ profile.grace_marks }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Advisor Remarks</label>
+                    <textarea name="advisor_remarks"
+                        style="width:100%; padding:10px; border:2px solid var(--gray-light); border-radius:8px;"
+                        placeholder="Enter remarks...">{{ profile.advisor_remarks or '' }}</textarea>
+                </div>
+
+                <button type="submit" class="btn full-width" style="background:var(--warning); color:white;">Update
+                    Metrics</button>
+            </form>
+        </div>
+
+    </div>
+    {% elif request.method == 'POST' %}
+    <div class="alert alert-error">
+        <i class="fa-solid fa-circle-xmark"></i> Student profile not found or not initialized.
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
