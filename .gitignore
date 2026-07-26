@@ -10,7 +10,9 @@ __pycache__/
 .env
 
 # Flask instance folder
-instance/
+# Ignore everything in instance except database files
+instance/*
+!instance/*.db
 
 # IDE settings
 .vscode/
